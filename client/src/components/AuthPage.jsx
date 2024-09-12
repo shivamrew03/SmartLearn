@@ -17,24 +17,26 @@ function AuthPage() {
       const endpoint = isLogin
         ? `/api/auth/${role}login`
         : `/api/auth/${role}signup`;
-
+  
       const data = isLogin ? { email, password } : { name, email, password };
-
+  
       const response = await axios.post(`http://localhost:3000${endpoint}`, data);
-
+  
       // Store the token and student/teacher ID in local storage
       localStorage.setItem('token', response.data.token);
-      if (role === 'student') {
+      
+      if (role === 'student' && response.data.user?.student_id) {
         localStorage.setItem('student_id', response.data.user.student_id);
-      } else if (role === 'teacher') {
-        localStorage.setItem('teacher_id', response.data.user.teacher_id); // Assuming a similar structure for teachers
+      } else if (role === 'teacher' && response.data.user?.teacher_id) {
+        localStorage.setItem('teacher_id', response.data.user.teacher_id);
       }
-
+  
       navigate(`/${role}/dashboard`);
     } catch (err) {
       setError(err.response?.data?.message || 'An error occurred');
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-500 flex flex-col justify-center items-center p-4">

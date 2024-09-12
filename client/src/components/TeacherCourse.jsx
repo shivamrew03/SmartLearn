@@ -5,22 +5,22 @@ import Header from '../elements/Header.jsx';
 import Footer from '../elements/Footer.jsx';
 
 function TeacherCoursePage() {
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
   const { course_id } = useParams();
   const location = useLocation();
-  const { courseName, courseId, courseDescription } = location.state || {};
+  const { courseName, courseDescription } = location.state || {};
 
   const [posts, setPosts] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [expandedTestId, setExpandedTestId] = useState(null);
   const [showTests, setShowTests] = useState(false);
-  const [creatingPost, setCreatingPost] = useState(false);
-  const [creatingTest, setCreatingTest] = useState(false);
 
   useEffect(() => {
     const fetchCourseDetails = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/course/${course_id}`);
-        setPosts(response.data);
+        setPosts(response.data.posts);
+        setTests(response.data.tests); // Assuming the backend sends both posts and tests in one call
       } catch (error) {
         console.error('Error fetching course details:', error);
       }
@@ -29,16 +29,18 @@ function TeacherCoursePage() {
     fetchCourseDetails();
   }, [course_id]);
 
+  const toggleTestExpansion = (testId) => {
+    setExpandedTestId((prevTestId) => (prevTestId === testId ? null : testId));
+  };
+
   const handleCreatePost = () => {
     navigate('/teacher/createPost', {
       state: { course_id, courseName },
     });
   };
-  
 
   const handleCreateTest = () => {
-    setCreatingTest(true);
-    // Implement test creation logic here
+    navigate(`/course/${course_id}/create-tests`, { state: { course_id } });
   };
 
   return (
@@ -49,8 +51,8 @@ function TeacherCoursePage() {
           <>
             <div className="text-center mb-10">
               <h1 className="text-5xl font-extrabold mb-4">{courseName}</h1>
-              <p className="text-xl text-gray-300 mb-2">Course ID: {courseId}</p>
-              {/* <p className="text-xl text-gray-300 mb-2">Description: {courseDescription}</p> */}
+              <p className="text-xl text-gray-300 mb-2">Course ID: {course_id}</p>
+              <p className="text-xl text-gray-300 mb-2">Description: {courseDescription}</p>
             </div>
 
             <div className="flex justify-between items-center mb-8">
@@ -79,12 +81,38 @@ function TeacherCoursePage() {
             </div>
 
             {showTests ? (
-              <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
-                <p className="text-xl text-gray-300">Tests will be displayed here.</p>
+              <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+                {tests ? (
+                  tests.map((test, index) => (
+                    <div
+                      key={test.test_id}
+                      className="mb-4 p-4 bg-gray-700 rounded-lg shadow-lg"
+                    >
+                      <div
+                        className="flex justify-between items-center cursor-pointer"
+                        onClick={() => toggleTestExpansion(test.test_id)}
+                      >
+                        <span className="text-xl font-semibold">Test {index + 1}</span>
+                        <span className="text-gray-400">
+                          {expandedTestId === test.test_id ? '▲' : '▼'}
+                        </span>
+                      </div>
+                      {expandedTestId === test.test_id && (
+                        <div className="mt-4 space-y-2">
+                          <p className="text-gray-300">Question 1: {test.question1}</p>
+                          <p className="text-gray-300">Question 2: {test.question2}</p>
+                          <p className="text-gray-300">Question 3: {test.question3}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-lg">No tests found for this course.</p>
+                )}
               </div>
             ) : (
               <div className="space-y-6">
-                {posts.length > 0 ? (
+                {posts ? (
                   posts.map((post) => (
                     <div
                       key={post.post_id}
@@ -92,19 +120,19 @@ function TeacherCoursePage() {
                     >
                       <h3 className="text-2xl font-semibold mb-2">{post.title}</h3>
                       <p className="text-gray-400 mb-4">{post.description}</p>
-                      {post.resources && (
+                      {post.urls.length > 0 && (
                         <div className="mt-4">
                           <h4 className="text-lg font-semibold">Resources:</h4>
                           <ul className="list-disc list-inside text-gray-400">
-                            {post.resources.map((resource, index) => (
-                              <li key={index}>
+                            {post.urls.map((resource, idx) => (
+                              <li key={idx}>
                                 <a
-                                  href={resource.link}
+                                  href={resource}
                                   className="text-blue-500 hover:underline"
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >
-                                  {resource.name}
+                                  {resource}
                                 </a>
                               </li>
                             ))}

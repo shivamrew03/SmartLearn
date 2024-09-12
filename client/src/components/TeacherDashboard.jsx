@@ -25,7 +25,7 @@ function TeacherDashboard() {
       <h1 className="text-5xl font-extrabold mb-8">Teacher Dashboard</h1>
       <button
         className="bg-green-500 text-white px-6 py-3 rounded-lg mb-8 hover:bg-green-600 transition-transform transform hover:scale-105"
-        onClick={() => navigate('/add-course')}
+        onClick={() => navigate('/add-course', { state: { teacherId } })}
       >
         Add Course
       </button>
@@ -38,7 +38,7 @@ function TeacherDashboard() {
             >
               <h2 className="text-2xl font-semibold mb-4">{course.name}</h2>
               <p className="text-gray-400 mb-4">{course.description}</p>
-              <Link to={`/course/${course.course_id}`} state={{ courseName: course.name, courseId: course.course_id }}>
+              <Link to={`/course/${course.course_id}`} state={{ courseName: course.name, courseId: course.course_id, courseDescription: course.description}}>
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
                   Manage Course
                 </button>

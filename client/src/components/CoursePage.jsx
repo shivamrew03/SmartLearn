@@ -5,7 +5,8 @@ import Header from '../elements/Header.jsx';
 import Footer from '../elements/Footer.jsx';
 
 function CoursePage() {
-  const { course_id } = useParams(); // Get course_id from URL params
+  const { course_id } = useParams();
+  console.log("courseId"); // Get course_id from URL params
   const location = useLocation(); // Get location object
   const { courseName, courseId, courseDescription } = location.state || {}; // Destructure state
 
@@ -16,6 +17,7 @@ function CoursePage() {
     const fetchCourseDetails = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/course/${course_id}`);
+        // console.log("tere nam", response.data);
         setPosts(response.data);
       } catch (error) {
         console.error('Error fetching course details:', error);
@@ -34,7 +36,7 @@ function CoursePage() {
             <div className="text-center mb-10">
               <h1 className="text-5xl font-extrabold mb-4">{courseName}</h1>
               <p className="text-xl text-gray-300 mb-2">Course ID: {courseId}</p>
-              {/* <p className="text-xl text-gray-300">Description: {courseDescription}</p> */}
+              <p className="text-xl text-gray-300">Description: {description}</p>
             </div>
 
             <div className="flex justify-between items-center mb-8">
@@ -61,14 +63,19 @@ function CoursePage() {
                     >
                       <h3 className="text-2xl font-semibold mb-2">{post.title}</h3>
                       <p className="text-gray-400 mb-4">{post.description}</p>
-                      {post.resources && (
+                      {post.urls.length > 0 && (
                         <div className="mt-4">
                           <h4 className="text-lg font-semibold">Resources:</h4>
                           <ul className="list-disc list-inside text-gray-400">
-                            {post.resources.map((resource, index) => (
-                              <li key={index}>
-                                <a href={resource.link} className="text-blue-500 hover:underline" target="_blank" rel="noopener noreferrer">
-                                  {resource.name}
+                            {post.urls.map((resource) => (
+                              <li>
+                                <a
+                                  href={resource}
+                                  className="text-blue-500 hover:underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {resource}
                                 </a>
                               </li>
                             ))}

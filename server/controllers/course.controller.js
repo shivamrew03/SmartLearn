@@ -42,12 +42,12 @@ export const getCoursesForTeacher = async (req, res) => {
 
 export const enrollInCourse = async (req, res) => {
   const { studentId } = req.params;
-  const { course_id, course_name } = req.body;
+  const { course_id, course_name, description } = req.body;
 
   try {
       await pool.query(
-          'INSERT INTO student_courses (student_id, course_id, course_name) VALUES ($1, $2, $3)',
-          [studentId, course_id, course_name]
+          'INSERT INTO student_courses (student_id, course_id, course_name, description) VALUES ($1, $2, $3, $4)',
+          [studentId, course_id, course_name, description]
       );
       res.status(201).json({ message: 'Enrolled successfully' });
   } catch (error) {

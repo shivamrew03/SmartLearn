@@ -10,10 +10,11 @@ function StudentDashboard() {
   const [showEnrolled, setShowEnrolled] = useState(false);
 
   const studentId = localStorage.getItem('student_id');
-
+  console.log(studentId);
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        console.log(studentId);
         const response = await axios.get(`http://localhost:3000/api/student/${studentId}/${showEnrolled ? 'enrolled-courses' : 'unenrolled-courses'}`);
         showEnrolled ? setEnrolledCourses(response.data) : setCourses(response.data);
       } catch (error) {
@@ -24,23 +25,20 @@ function StudentDashboard() {
     fetchCourses();
   }, [showEnrolled, studentId]);
 
-  const enrollInCourse = async (courseId, courseName) => {
+  const enrollInCourse = async (courseId, courseName, courseDescription) => {
     try {
-      await axios.post(`http://localhost:3000/api/student/${studentId}/enroll`, { course_id: courseId, course_name: courseName });
-
-      const card = document.getElementById(`course-card-${courseId}`);
-      card.style.transition = 'transform 0.5s, opacity 0.5s';
-      card.style.transform = 'translateY(-100px)';
-      card.style.opacity = '0';
-
-      setTimeout(() => {
-        setCourses(courses.filter(course => course.course_id !== courseId));
-        setEnrolledCourses([...enrolledCourses, { course_id: courseId, name: courseName }]);
-      }, 500);
+      await axios.post(`http://localhost:3000/api/student/${studentId}/enroll`, { course_id: courseId, course_name: courseName, description: courseDescription });
+  
+      alert('You have successfully enrolled in the course!');
+  
+      // Update state directly without animation
+      // setCourses(courses.filter(course => course.course_id !== courseId));
+      setEnrolledCourses([...enrolledCourses, { course_id: courseId, name: courseName, description: courseDescription  }]);
     } catch (error) {
       console.error('Error enrolling in course:', error);
     }
   };
+  
 
   const handleMouseMove = (e, courseId) => {
     const card = document.getElementById(`course-card-${courseId}`);
@@ -89,10 +87,10 @@ function StudentDashboard() {
                 onMouseLeave={() => handleMouseLeave(course.course_id)}
               >
                 <h3 className="text-2xl font-semibold mb-2">{showEnrolled ? course.course_name : course.name}</h3>
-                <p className="text-gray-400 mb-4">Course ID1: {course.course_id}</p>
-                {/* <p className="text-gray-400 mb-4">{course.description}</p> */}
+                <p className="text-gray-400 mb-4">Course ID: {course.course_id}</p>
+                <p className="text-gray-400 mb-4">{course.description}</p>
                 {showEnrolled ? (
-                  <Link to={`/api/course/${course.course_id}`} state={{ courseName: course.course_name, courseId: course.course_id }}>
+                  <Link to={`/api/course/${course.course_id}`} state={{ courseName: course.course_name, courseId: course.course_id, description: course.description }}>
                     <button className="bg-green-500 text-white px-5 py-2 rounded-lg hover:bg-green-600 transition duration-300" >
                       Go to Course
                     </button>

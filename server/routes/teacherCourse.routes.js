@@ -7,6 +7,8 @@ const router = express.Router();
 // Route for teacher
 router.get('/:id/courses', getCoursesForTeacher);
 
+
+
 router.post('/:teacherId/add-course', async (req, res) => {
   const { teacherId } = req.params;
   const { name, description, workflow } = req.body;
